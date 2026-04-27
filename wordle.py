@@ -1,19 +1,23 @@
 import tkinter as tk
+import time
 
 
-def getChars():
+def getChars(adder):
+
     return [
-        characters[0].get(),
-        characters[1].get(),
-        characters[2].get(),
-        characters[3].get(),
-        characters[4].get(),
+        characters[adder].get(),
+        characters[adder + 1].get(),
+        characters[adder + 2].get(),
+        characters[adder + 3].get(),
+        characters[adder + 4].get(),
     ]
 
 
 def checkWord(word):
+    global guess
+    adder = guess * 5
     wordle = list(word)
-    guessed_letters = getChars()
+    guessed_letters = getChars(adder)
     word_colours = [0, 0, 0, 0, 0]
 
     # find greens and remove them from list
@@ -33,13 +37,18 @@ def checkWord(word):
                     break
 
     for idx, letter_color in enumerate(word_colours):
+        time.sleep(0.3)
+        if letter_color == 0:
+            characters[idx + adder].config(bg="GREY")
         if letter_color == 1:
-            characters[idx].config(bg="GREEN")
+            characters[idx + adder].config(bg="GREEN")
         if letter_color == 2:
-            characters[idx].config(bg="goldenrod")
+            characters[idx + adder].config(bg="goldenrod")
+        root.update()
+    guess = guess + 1
 
 
-# -----------------------------------------
+# ----------- USER INTERFACE ------------------------------
 def validate(P):
     if len(P) == 0:
         return True
@@ -48,7 +57,8 @@ def validate(P):
     else:
         # Anything else, reject it
         return False
-    
+
+
 def on_key(event, index):
     entry = characters[index]
     value = characters[index].get()
@@ -61,9 +71,10 @@ def on_key(event, index):
         characters[index].insert(tk.END, value.upper())
         characters[index + 1].focus_set()
 
+
 word = "SCARE"
 characters = []
-guess = 1
+guess = 0
 root = tk.Tk()
 root.title("Wordle")
 
@@ -71,8 +82,8 @@ vcmd = (root.register(validate), "%P")
 
 for i in range(25):
     e = tk.Entry(
-            root, width=2, validate="key",  validatecommand=vcmd, font=("Arial", 18)
-        )
+        root, width=2, validate="key", validatecommand=vcmd, font=("Arial", 18)
+    )
     e.grid(row=i // 5, column=i % 5)
     e.bind("<KeyRelease>", lambda event, idx=i: on_key(event, idx))
     characters.append(e)
