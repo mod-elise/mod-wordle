@@ -23,14 +23,14 @@ def checkWord(word):
     # find greens and remove them from list
     for idx, guessed_letter in enumerate(guessed_letters):
         if wordle[idx] == guessed_letter:
-            word_colours[idx] = 1
+            word_colours[idx] = 2
             wordle[idx] = "."
 
     # find yellows and remove them from list
     for idx, guessed_letter in enumerate(guessed_letters):
         print(idx, guessed_letter, wordle)
         if guessed_letter in wordle:
-            word_colours[idx] = 2
+            word_colours[idx] = 1
             for jdx, scanned in enumerate(wordle):
                 if scanned == guessed_letter:
                     wordle[jdx] = "."
@@ -39,13 +39,25 @@ def checkWord(word):
     for idx, letter_color in enumerate(word_colours):
         time.sleep(0.3)
         if letter_color == 0:
-            characters[idx + adder].config(bg="GREY")
+            characters[idx + adder].config(
+                disabledbackground="GREY", disabledforeground="BLACK", state=tk.DISABLED
+            )
         if letter_color == 1:
-            characters[idx + adder].config(bg="GREEN")
+            characters[idx + adder].config(
+                disabledbackground="GOLDENROD",
+                disabledforeground="BLACK",
+                state=tk.DISABLED,
+            )
         if letter_color == 2:
-            characters[idx + adder].config(bg="goldenrod")
+            characters[idx + adder].config(
+                disabledbackground="GREEN",
+                disabledforeground="BLACK",
+                state=tk.DISABLED,
+            )
         root.update()
     guess = guess + 1
+    if sum(word_colours) == 10:
+        btn.config(text="Won!", state=tk.DISABLED)
 
 
 # ----------- USER INTERFACE ------------------------------
@@ -69,6 +81,7 @@ def on_key(event, index):
         characters[index].delete(0, tk.END)
         characters[index].insert(tk.END, value.upper())
         characters[index + 1].focus_set()
+    root.update()
 
 
 word = "SCARE"
@@ -87,13 +100,14 @@ for i in range(25):
     e.bind("<KeyRelease>", lambda event, idx=i: on_key(event, idx))
     characters.append(e)
 
-tk.Button(
+btn = tk.Button(
     root,
     text="CHECK",
     width=10,
     height=4,
     bg="LIGHT GREEN",
     command=lambda: checkWord(word),
-).grid(row=6, columnspan=5)
+)
+btn.grid(row=6, columnspan=5)
 
 root.mainloop()
