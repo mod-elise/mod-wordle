@@ -60,7 +60,6 @@ def validate(P):
 
 
 def on_key(event, index):
-    entry = characters[index]
     value = characters[index].get()
     if len(value) == 0 and event.keysym == "BackSpace":
         if index > 0:
