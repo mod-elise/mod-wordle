@@ -48,7 +48,18 @@ def validate(P):
     else:
         # Anything else, reject it
         return False
-
+    
+def on_key(event, index):
+    entry = characters[index]
+    value = characters[index].get()
+    if len(value) == 0 and event.keysym == "BackSpace":
+        if index > 0:
+            characters[index - 1].focus_set()
+            characters[index - 1].delete(0, tk.END)
+    else:
+        characters[index].delete(0, tk.END)
+        characters[index].insert(tk.END, value.upper())
+        characters[index + 1].focus_set()
 
 word = "SCARE"
 characters = []
@@ -56,18 +67,15 @@ guess = 1
 root = tk.Tk()
 root.title("Wordle")
 
-
 vcmd = (root.register(validate), "%P")
 
-r1c1 = tk.Entry(root, width=1, validate="key", validatecommand=vcmd, font=("Arial", 18))
-
 for i in range(25):
-    characters.append(
-        tk.Entry(
-            root, width=2, validate="key", validatecommand=vcmd, font=("Arial", 18)
+    e = tk.Entry(
+            root, width=2, validate="key",  validatecommand=vcmd, font=("Arial", 18)
         )
-    )
-    characters[i].grid(row=i // 5, column=i % 5)
+    e.grid(row=i // 5, column=i % 5)
+    e.bind("<KeyRelease>", lambda event, idx=i: on_key(event, idx))
+    characters.append(e)
 
 tk.Button(
     root,
