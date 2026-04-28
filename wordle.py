@@ -2,6 +2,7 @@ import tkinter as tk
 import time
 import random
 
+
 def getChars(adder):
 
     return [
@@ -57,7 +58,6 @@ def checkWord(word):
     guess = guess + 1
     if sum(word_colours) == 10:
         btn.config(text="Won!", state=tk.DISABLED)
-        
 
 
 def startGame():
@@ -65,15 +65,15 @@ def startGame():
     global guess
     global lines
     guess = 0
-    with open('wordlist.txt', 'r') as file:
+    with open("wordlist.txt", "r") as file:
         content = file.read()
         lines = content.splitlines()
     global word
     word = random.choice(lines).upper()
 
 
-
 # ----------- USER INTERFACE ------------------------------
+
 
 def resetUI():
     for i in range(25):
@@ -103,14 +103,13 @@ def on_key(event, index):
 
     return "break"
 
+
 characters = []
 root = tk.Tk()
 root.title("Wordle")
 
 for i in range(25):
-    e = tk.Entry(
-        root, width=2, validate="key", font=("Arial", 18)
-    )
+    e = tk.Entry(root, width=2, validate="key", font=("Arial", 18))
     e.grid(row=i // 5, column=i % 5)
     e.bind("<KeyPress>", lambda event, idx=i: on_key(event, idx))
     characters.append(e)
