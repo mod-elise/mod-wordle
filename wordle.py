@@ -1,6 +1,6 @@
 import tkinter as tk
 import time
-
+import random
 
 def getChars(adder):
 
@@ -28,7 +28,6 @@ def checkWord(word):
 
     # find yellows and remove them from list
     for idx, guessed_letter in enumerate(guessed_letters):
-        print(idx, guessed_letter, wordle)
         if guessed_letter in wordle:
             word_colours[idx] = 1
             for jdx, scanned in enumerate(wordle):
@@ -58,47 +57,65 @@ def checkWord(word):
     guess = guess + 1
     if sum(word_colours) == 10:
         btn.config(text="Won!", state=tk.DISABLED)
+        
+
+
+def startGame():
+    resetUI()
+    global guess
+    global lines
+    guess = 0
+    with open('wordlist.txt', 'r') as file:
+        content = file.read()
+        lines = content.splitlines()
+    global word
+    word = random.choice(lines).upper()
+
 
 
 # ----------- USER INTERFACE ------------------------------
-def validate(P):
-    if len(P) == 0:
-        return True
-    elif len(P) == 1 and P.isalpha():
-        return True
-    else:
-        # Anything else, reject it
-        return False
+
+def resetUI():
+    for i in range(25):
+        characters[i].config(state=tk.NORMAL)
+        characters[i].delete(0, tk.END)
+        btn.config(text="CHECK", state=tk.NORMAL)
+    characters[0].focus_set()
 
 
 def on_key(event, index):
-    value = characters[index].get()
-    if len(value) == 0 and event.keysym == "BackSpace":
+    if len(event.keysym) > 1 and event.keysym != "BackSpace":
+        return "break"
+
+    entry = characters[index]
+
+    if event.keysym == "BackSpace":
+        entry.delete(0, tk.END)
         if index > 0:
             characters[index - 1].focus_set()
-            characters[index - 1].delete(0, tk.END)
-    else:
-        characters[index].delete(0, tk.END)
-        characters[index].insert(tk.END, value.upper())
+        return "break"
+
+    entry.delete(0, tk.END)
+    entry.insert(0, event.char.upper())
+
+    if index < len(characters) - 1:
         characters[index + 1].focus_set()
-    root.update()
 
+    return "break"
 
-word = "SCARE"
 characters = []
-guess = 0
 root = tk.Tk()
 root.title("Wordle")
 
-vcmd = (root.register(validate), "%P")
-
 for i in range(25):
     e = tk.Entry(
-        root, width=2, validate="key", validatecommand=vcmd, font=("Arial", 18)
+        root, width=2, validate="key", font=("Arial", 18)
     )
     e.grid(row=i // 5, column=i % 5)
-    e.bind("<KeyRelease>", lambda event, idx=i: on_key(event, idx))
+    e.bind("<KeyPress>", lambda event, idx=i: on_key(event, idx))
     characters.append(e)
+
+characters[0].focus_set()
 
 btn = tk.Button(
     root,
@@ -110,4 +127,14 @@ btn = tk.Button(
 )
 btn.grid(row=6, columnspan=5)
 
+menubar = tk.Menu(root)
+filemenu = tk.Menu(menubar, tearoff=0)
+filemenu.add_command(label="New", command=startGame)
+menubar.add_cascade(label="Game", menu=filemenu)
+
+root.config(menu=menubar)
+
+
+global word
+startGame()
 root.mainloop()
